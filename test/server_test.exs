@@ -47,4 +47,27 @@ defmodule Proxie.ServerTest do
     assert req.path == "/healthcheck"
   end
 
+  test "wildcard host, exact match path" do
+    Server.configure(@routing_table)
+
+    conn =
+      Plug.Test.conn(:get, "/status")
+      |> Map.put(:host, "unicorns.dev.example.com")
+
+    req = Server.outgoing_request(conn)
+    assert req.host == "development-stack-monitor"
+    assert req.path == "/status"
+  end
+
+  test "wildcard host, path prefix" do
+    Server.configure(@routing_table)
+
+    conn =
+      Plug.Test.conn(:get, "/api/v3/bark")
+      |> Map.put(:host, "doggos.dev.example.com")
+
+    req = Server.outgoing_request(conn)
+    assert req.host == "development-stack"
+    assert req.path == "/api/v3/bark"
+  end
 end

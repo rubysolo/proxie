@@ -14,19 +14,29 @@ defmodule Proxie.RouterCompiler do
             module_name: Proxie.Router],
           location: :keep do
       defmodule module_name do
+        def match(host, route) do
+          do_match(host, String.reverse(host), route)
+        end
+
         for {host, routes} <- routing_table do
           for route <- routes do
+            h = Proxie.RouterCompiler.build_host_matcher(host)
             m = Proxie.RouterCompiler.build_path_matcher(route.match)
-            def match(unquote(host), unquote(m)), do: unquote(Macro.escape(route))
+            def do_match(_, unquote(h), unquote(m)), do: unquote(Macro.escape(route))
           end
         end
 
         # fallback
-        def match(host, path), do: raise("Route not found for #{host}#{path}")
+        def do_match(host, _, path), do: raise("Route not found for #{host}#{path}")
       end
     end
     |> Code.eval_quoted([], __ENV__)
   end
+
+  def build_host_matcher("*" <> host_suffix) do
+    {:<>, [context: Elixir, import: Kernel], [String.reverse(host_suffix), {:_, [], Elixir}]}
+  end
+  def build_host_matcher(host), do: String.reverse(host)
 
   def build_path_matcher(match), do: match |> String.reverse() |> path_matcher()
   def path_matcher("*" <> reverse_match) do

@@ -9,6 +9,10 @@ defmodule Proxie.RouterCompiler do
   """
 
   def compile(routing_table) do
+    # temporarily suppress "module redefined" warning messages
+    opts = Code.compiler_options()
+    Code.compiler_options(ignore_module_conflict: true)
+
     quote bind_quoted: [
             routing_table: Macro.escape(routing_table),
             module_name: Proxie.Router],
@@ -31,6 +35,9 @@ defmodule Proxie.RouterCompiler do
       end
     end
     |> Code.eval_quoted([], __ENV__)
+
+    # restore original compiler options
+    Code.compiler_options(opts)
   end
 
   def build_host_matcher("*" <> host_suffix) do

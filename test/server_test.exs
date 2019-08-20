@@ -10,6 +10,7 @@ defmodule Proxie.ServerTest do
     end
   end
 
+  # keys = [:scheme, :host, :port, :request_path, :query_string]
   @routing_table %{
     "api.example.com" => [
       %{match: "/api/v2/*", host: "new-hotness", base_path: "/"},

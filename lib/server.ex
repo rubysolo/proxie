@@ -14,7 +14,7 @@ defmodule Proxie.Server do
   end
 
   def outgoing_request(conn) do
-    route = Proxie.Router.match(conn.host, conn.request_path)
+    route = Proxie.Router.match(conn)
     prefix =
       route.match
       |> String.replace("/*", "/")

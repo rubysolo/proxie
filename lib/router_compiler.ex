@@ -1,6 +1,6 @@
 defmodule Proxie.Router do
   # stub module with default implementation
-  def match(_host, _path), do: raise("Routing table has not been defined!")
+  def match(%Plug.Conn{}), do: raise("Routing table has not been defined!")
 end
 
 defmodule Proxie.RouterCompiler do
@@ -18,8 +18,8 @@ defmodule Proxie.RouterCompiler do
             module_name: Proxie.Router],
           location: :keep do
       defmodule module_name do
-        def match(host, route) do
-          do_match(host, String.reverse(host), route)
+        def match(conn) do
+          do_match(conn.host, String.reverse(conn.host), conn.request_path)
         end
 
         for {host, routes} <- routing_table do
